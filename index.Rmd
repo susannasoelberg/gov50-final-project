@@ -12,7 +12,7 @@ output:
 ## Project thoughts
 
 I am interested in exploring data related to...
-Census data in Texas and how many people are undercounted (especially racial minorities and low income citizens), and how that affects state/county funding and resources in these areas. If possible, I would like to see how this is related to voting accessibility and how the new restrictive photo ID voting laws are also affecting these populations. 
+Census data in Texas and how many people are undercounted (especially racial minorities and low income citizens), and how that affects state/county funding and resources in these areas. If possible, I would like to see how this is related to voting accessibility and how the new restrictive photo ID voting laws are also affecting these populations.
 
 ## Written Proposal
 
