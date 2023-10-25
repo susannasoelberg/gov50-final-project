@@ -17,4 +17,32 @@ Census data in Texas and how many people are undercounted (especially racial min
 ## Written Proposal
 
 Does the grade assigned to an area by the Home Owner's Loan Corporation (HOLC) determine the racial demographics of that area? I plan to study how historical redlining has affected the racial makeup of cities today and how its effects are still present. The HOLC data is from maps drawn in 1935-1940. I predict that cities with lower HOLC scores in the past will have higher non-white populations and that cities with higher HOLC scores in the past will have lower non-white populations. My unit of analysis is each metro area (metro_area) (ex. Chicago). My explanatory variable is the HOLC grade (scale from A as "best" to D as "hazardous") and my outcome variable is the percentage of a population in a HOLC zone that is non-white (combination of pct_black, pct_hispanic, pct_asian, and pct_other). If I observe a higher HOLC score (A or B) in an area with a high white population or a lower HOLC score (C or D) in an area with a high non-white population, that will support my hypothesis. 
+
+## First Visualization
+
+```{r}
+library(tidyverse)
+metro.grades
+
+redline_graph <- metro.grades |>
+  mutate(pct_nonwhite = pct_black + pct_hisp + pct_asian + pct_other) |>
+  group_by(holc_grade) |>
+  summarize(pct_popwhite = mean(pct_white),
+            pct_popnonwhite = mean(pct_nonwhite)) |>
+  pivot_longer(cols = c(pct_popwhite, pct_popnonwhite), 
+               names_to = "population_type",
+               values_to = "Percentage") |>
+    ggplot(mapping = aes(x = holc_grade, y = Percentage, fill = population_type)) +
+  geom_col(position = "dodge") + 
+  labs(
+    x = "Historic HOLC Grade",
+    y = "Percent of Population ",
+    title = "Historic HOLC Grade of Neighborhoods Compared to Their Current Racial Makeup",
+    labels = c("Percent of Nonwhite Population", "Percent of White Population")
+  ) +
+  scale_fill_discrete(name = "Racial Demographics", labels = c("Nonwhite Population", "White Population"))
+redline_graph
+
+```
+
  
