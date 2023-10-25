@@ -24,7 +24,7 @@ Does the grade assigned to an area by the Home Owner's Loan Corporation (HOLC) d
 library(tidyverse)
 metro.grades
 
-redline_graph <- metro.grades |>
+holcpop_graph <- metro.grades |>
   mutate(pct_nonwhite = pct_black + pct_hisp + pct_asian + pct_other) |>
   group_by(holc_grade) |>
   summarize(pct_popwhite = mean(pct_white),
@@ -41,8 +41,7 @@ redline_graph <- metro.grades |>
     labels = c("Percent of Nonwhite Population", "Percent of White Population")
   ) +
   scale_fill_discrete(name = "Racial Demographics", labels = c("Nonwhite Population", "White Population"))
-redline_graph
+holcpop_graph
 
 ```
-
- 
+This graph shows the relationship between the average racial demographics of the neighborhoods included in this study and the Home Owner's Loan Corporation grade that the neighborhoods received between 1935 and 1940.
