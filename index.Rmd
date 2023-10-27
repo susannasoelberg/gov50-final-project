@@ -22,7 +22,7 @@ Does the grade assigned to an area by the Home Owner's Loan Corporation (HOLC) d
 
 ```{r}
 library(tidyverse)
-metro.grades
+metro.grades <- read.csv("data/metro-grades.csv")
 
 holcpop_graph <- metro.grades |>
   mutate(pct_nonwhite = pct_black + pct_hisp + pct_asian + pct_other) |>

@@ -115,7 +115,7 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
   <!--/radix_placeholder_rmarkdown_metadata-->
   
   <script type="text/json" id="radix-resource-manifest">
-  {"type":"character","attributes":{},"value":["index_files/anchor-4.2.2/anchor.min.js","index_files/bowser-1.9.3/bowser.min.js","index_files/distill-2.2.21/template.v2.js","index_files/header-attrs-2.17/header-attrs.js","index_files/header-attrs-2.24/header-attrs.js","index_files/jquery-3.6.0/jquery-3.6.0.js","index_files/jquery-3.6.0/jquery-3.6.0.min.js","index_files/jquery-3.6.0/jquery-3.6.0.min.map","index_files/popper-2.6.0/popper.min.js","index_files/tippy-6.2.7/tippy-bundle.umd.min.js","index_files/tippy-6.2.7/tippy-light-border.css","index_files/tippy-6.2.7/tippy.css","index_files/tippy-6.2.7/tippy.umd.min.js","index_files/webcomponents-2.0.0/webcomponents.js"]}
+  {"type":"character","attributes":{},"value":["data/metro-grades.csv","index_files/anchor-4.2.2/anchor.min.js","index_files/bowser-1.9.3/bowser.min.js","index_files/distill-2.2.21/template.v2.js","index_files/figure-html5/unnamed-chunk-1-1.png","index_files/header-attrs-2.17/header-attrs.js","index_files/header-attrs-2.24/header-attrs.js","index_files/jquery-3.6.0/jquery-3.6.0.js","index_files/jquery-3.6.0/jquery-3.6.0.min.js","index_files/jquery-3.6.0/jquery-3.6.0.min.map","index_files/popper-2.6.0/popper.min.js","index_files/tippy-6.2.7/tippy-bundle.umd.min.js","index_files/tippy-6.2.7/tippy-light-border.css","index_files/tippy-6.2.7/tippy.css","index_files/tippy-6.2.7/tippy.umd.min.js","index_files/webcomponents-2.0.0/webcomponents.js"]}
   </script>
   <!--radix_placeholder_navigation_in_header-->
   <!--/radix_placeholder_navigation_in_header-->
@@ -1548,6 +1548,34 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 Census data in Texas and how many people are undercounted (especially racial minorities and low income citizens), and how that affects state/county funding and resources in these areas. If possible, I would like to see how this is related to voting accessibility and how the new restrictive photo ID voting laws are also affecting these populations.</p>
 <h2 id="written-proposal">Written Proposal</h2>
 <p>Does the grade assigned to an area by the Home Owner’s Loan Corporation (HOLC) determine the racial demographics of that area? I plan to study how historical redlining has affected the racial makeup of cities today and how its effects are still present. The HOLC data is from maps drawn in 1935-1940. I predict that cities with lower HOLC scores in the past will have higher non-white populations and that cities with higher HOLC scores in the past will have lower non-white populations. My unit of analysis is each metro area (metro_area) (ex. Chicago). My explanatory variable is the HOLC grade (scale from A as “best” to D as “hazardous”) and my outcome variable is the percentage of a population in a HOLC zone that is non-white (combination of pct_black, pct_hispanic, pct_asian, and pct_other). If I observe a higher HOLC score (A or B) in an area with a high white population or a lower HOLC score (C or D) in an area with a high non-white population, that will support my hypothesis.</p>
+<h2 id="first-visualization">First Visualization</h2>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span><span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://tidyverse.tidyverse.org'>tidyverse</a></span><span class='op'>)</span></span>
+<span><span class='va'>metro.grades</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/utils/read.table.html'>read.csv</a></span><span class='op'>(</span><span class='st'>"data/metro-grades.csv"</span><span class='op'>)</span></span>
+<span></span>
+<span><span class='va'>holcpop_graph</span> <span class='op'>&lt;-</span> <span class='va'>metro.grades</span> <span class='op'>|&gt;</span></span>
+<span>  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='op'>(</span>pct_nonwhite <span class='op'>=</span> <span class='va'>pct_black</span> <span class='op'>+</span> <span class='va'>pct_hisp</span> <span class='op'>+</span> <span class='va'>pct_asian</span> <span class='op'>+</span> <span class='va'>pct_other</span><span class='op'>)</span> <span class='op'>|&gt;</span></span>
+<span>  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/group_by.html'>group_by</a></span><span class='op'>(</span><span class='va'>holc_grade</span><span class='op'>)</span> <span class='op'>|&gt;</span></span>
+<span>  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarize</a></span><span class='op'>(</span>pct_popwhite <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='op'>(</span><span class='va'>pct_white</span><span class='op'>)</span>,</span>
+<span>            pct_popnonwhite <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='op'>(</span><span class='va'>pct_nonwhite</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>|&gt;</span></span>
+<span>  <span class='fu'><a href='https://tidyr.tidyverse.org/reference/pivot_longer.html'>pivot_longer</a></span><span class='op'>(</span>cols <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='va'>pct_popwhite</span>, <span class='va'>pct_popnonwhite</span><span class='op'>)</span>, </span>
+<span>               names_to <span class='op'>=</span> <span class='st'>"population_type"</span>,</span>
+<span>               values_to <span class='op'>=</span> <span class='st'>"Percentage"</span><span class='op'>)</span> <span class='op'>|&gt;</span></span>
+<span>    <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></span><span class='op'>(</span>mapping <span class='op'>=</span> <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>holc_grade</span>, y <span class='op'>=</span> <span class='va'>Percentage</span>, fill <span class='op'>=</span> <span class='va'>population_type</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>+</span></span>
+<span>  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/geom_bar.html'>geom_col</a></span><span class='op'>(</span>position <span class='op'>=</span> <span class='st'>"dodge"</span><span class='op'>)</span> <span class='op'>+</span> </span>
+<span>  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/labs.html'>labs</a></span><span class='op'>(</span></span>
+<span>    x <span class='op'>=</span> <span class='st'>"Historic HOLC Grade"</span>,</span>
+<span>    y <span class='op'>=</span> <span class='st'>"Percent of Population "</span>,</span>
+<span>    title <span class='op'>=</span> <span class='st'>"Historic HOLC Grade of Neighborhoods Compared to Their Current Racial Makeup"</span>,</span>
+<span>    labels <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"Percent of Nonwhite Population"</span>, <span class='st'>"Percent of White Population"</span><span class='op'>)</span></span>
+<span>  <span class='op'>)</span> <span class='op'>+</span></span>
+<span>  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/scale_colour_discrete.html'>scale_fill_discrete</a></span><span class='op'>(</span>name <span class='op'>=</span> <span class='st'>"Racial Demographics"</span>, labels <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"Nonwhite Population"</span>, <span class='st'>"White Population"</span><span class='op'>)</span><span class='op'>)</span></span>
+<span><span class='va'>holcpop_graph</span></span></code></pre>
+</div>
+<p><img src="index_files/figure-html5/unnamed-chunk-1-1.png" width="624" /></p>
+</div>
+<p>This graph shows the relationship between the average racial demographics of the neighborhoods included in this study and the Home Owner’s Loan Corporation grade that the neighborhoods received between 1935 and 1940.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
 <!--radix_placeholder_article_footer-->
 <!--/radix_placeholder_article_footer-->
