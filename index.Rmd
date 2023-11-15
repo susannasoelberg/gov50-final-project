@@ -45,3 +45,54 @@ holcpop_graph
 
 ```
 This graph shows the relationship between the average racial demographics of the neighborhoods included in this study and the Home Owner's Loan Corporation grade that the neighborhoods received between 1935 and 1940.
+
+
+## First Analysis
+
+```{r}
+metro.grades <- metro.grades |>
+  mutate(pct_nonwhite = pct_black + pct_hisp + pct_asian + pct_other,
+         holc_numeric = case_when(
+    holc_grade == "A" ~ 4,
+    holc_grade == "B" ~ 3,
+    holc_grade == "C" ~ 2, 
+    holc_grade == "D" ~ 1))
+mean(metro.grades$pct_nonwhite)
+
+diff_in_means <- metro.grades |>
+ group_by(holc_grade) |>
+  summarize(mean_pct_nonwhite = mean(pct_nonwhite)) |>
+  pivot_wider(
+    names_from = holc_grade,
+    values_from = mean_pct_nonwhite
+  ) |>
+  mutate(diff = `D` - `A`)
+diff_in_means
+
+knitr::kable(diff_in_means, col.names = c("Holc Grade A", "Holc Grade B", "Holc Grade C", "Holc Grade D", "Difference between D and A"), caption = "Average Nonwhite Population (%) Based on Holc Grade")
+
+```
+
+This table shows the average nonwhite population (in percent) based on each Holc Grade for the metro areas in this study. The column on the far right side shows the difference in the nonwhite population for an area with a Holc Grade of D and a Holc Grade of A, which means that areas with a Holc Grade of D had on average a 34 percentage point higher nonwhite population than areas with a Holc Grade of A.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
