@@ -73,7 +73,7 @@ knitr::kable(diff_in_means, col.names = c("Holc Grade A", "Holc Grade B", "Holc 
 
 ```
 
-This table shows the average nonwhite population (in percent) based on each Holc Grade for the metro areas in this study. The column on the far right side shows the difference in the nonwhite population for an area with a Holc Grade of D and a Holc Grade of A, which means that areas with a Holc Grade of D had on average a 34 percentage point higher nonwhite population than areas with a Holc Grade of A.
+This table shows the average nonwhite population (in percent) based on each Holc Grade for the metro areas in this study. The column on the far right side shows the difference in the nonwhite population for an area with a Holc Grade of D and a Holc Grade of A, which means that areas with a Holc Grade of D had on average a 34 percentage point higher nonwhite population than areas with a Holc Grade of A. 
 
 
 
