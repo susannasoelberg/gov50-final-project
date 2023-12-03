@@ -66,6 +66,26 @@ dfw <- metro.grades |>
 dfw
 ```
 
+## Atlanta Area
+
+```{r}
+atl <- metro.grades |>
+  filter(metro_area == "Atlanta-Sandy Springs-Alpharetta, GA") |>
+  group_by(holc_grade) |>
+  summarize(pct_popnonwhite = mean(pct_nonwhite)) |>
+  ggplot(mapping = aes(x = holc_grade, y = pct_popnonwhite, fill = holc_grade)) + 
+  geom_col() + 
+  labs(
+    x = "HOLC Grade",
+    y = "Percent Nonwhite Population",
+    title = "Percent Nonwhite Population Based on HOLC Grade in Atlanta Area"
+  ) + 
+  scale_fill_discrete(name = "HOLC Grade")
+
+atl
+```
+I have added a specific population breakdown for the Dallas-Fort Worth area and the Atlanta area to take a closer look at the two cities that I grew up in and to see how they compare to each other and to the average of all of the metro areas in this study. Atlanta and DFW have a similar nonwhite population percent for the A HOLC Grade, which is a little below the nonwhite population for the A Grade across all metro areas. The nonwhite population percent for B and C grades is lower for Atlanta than DFW, and Atlanta has a lower nonwhite population percent for these two grades than the average, while DFW has a higher one. Finally, the nonwhite population percent for Atlanta and Dallas for a D HOLC grade is higher than the metro area average, and pretty significantly higher for the DFW area especially.  
+
 
 ## First Analysis
 
