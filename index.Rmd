@@ -47,6 +47,26 @@ holcpop_graph
 This graph shows the relationship between the average racial demographics of the neighborhoods included in this study and the Home Owner's Loan Corporation grade that the neighborhoods received between 1935 and 1940.
 
 
+## Dallas/Fort Worth Area
+
+```{r}
+dfw <- metro.grades |>
+  filter(metro_area == "Dallas-Fort Worth-Arlington, TX") |>
+  group_by(holc_grade) |>
+  summarize(pct_popnonwhite = mean(pct_nonwhite)) |>
+  ggplot(mapping = aes(x = holc_grade, y = pct_popnonwhite, fill = holc_grade)) + 
+  geom_col() + 
+  labs(
+    x = "HOLC Grade",
+    y = "Percent Nonwhite Population",
+    title = "Percent Nonwhite Population Based on HOLC Grade in DFW Area"
+  ) + 
+  scale_fill_discrete(name = "HOLC Grade")
+
+dfw
+```
+
+
 ## First Analysis
 
 ```{r}
@@ -69,13 +89,18 @@ diff_in_means <- metro.grades |>
   mutate(diff = `D` - `A`)
 diff_in_means
 
-knitr::kable(diff_in_means, col.names = c("Holc Grade A", "Holc Grade B", "Holc Grade C", "Holc Grade D", "Difference between D and A"), caption = "Average Nonwhite Population (%) Based on Holc Grade")
+knitr::kable(diff_in_means, digits = 2, col.names = c("Holc Grade A", "Holc Grade B", "Holc Grade C", "Holc Grade D", "Difference between D and A"), caption = "Average Nonwhite Population (%) Based on Holc Grade")
 
 ```
 
 This table shows the average nonwhite population (in percent) based on each Holc Grade for the metro areas in this study. The column on the far right side shows the difference in the nonwhite population for an area with a Holc Grade of D and a Holc Grade of A, which means that areas with a Holc Grade of D had on average a 34 percentage point higher nonwhite population than areas with a Holc Grade of A. 
 
 
+## Regression
+
+```{r}
+
+```
 
 
 
