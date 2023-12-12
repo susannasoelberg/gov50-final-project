@@ -8,119 +8,185 @@ output:
 ---
 
 
+## Introduction
 
-## Project thoughts
+Is the urbanization level of a state related to which political party that state leans toward? In this study, I plan to examine how the urban index of a state, or the density of its population, relates to how the people living in that state identify politically. I expect that the states that are more urban will lean more Democratic while the states that are more rural will lean more Republican. My explanatory variable is the urban index score (urbanindex), which as the source of the dataset Five Thirty Eight explains, "This number is calculated as the natural logarithm of the average number of people living within a five-mile radius of a given resident in each census tract in that state." My outcome variable is the partisan lean score, which Five Thirty Eight explains is calculated as follows: 
+"This version of partisan lean, meant to be used for congressional and gubernatorial elections, is calculated as 50 percent the state or district’s lean relative to the nation in the most recent presidential election, 25 percent its relative lean in the second-most-recent presidential election and 25 percent a custom state-legislative lean based on the statewide popular vote in the four most recent state House elections."
+Through this calculation, positive numbers for the partisan lean mean a Democratic lean and negative numbers mean a Republican lean. Therefore, I expect that there will be a positive relationship between the urban index and the partisan lean, so a positive coefficient on my linear regression would support that hypothesis. 
+It is important to understand this relationship because knowing what factors influence people's voting choices or preferences is helpful for predicting election outcomes. Also, it is important to understand how a person's environment affects their political views as US politics become more polarized and it becomes very useful to understand what factors influence people's beliefs on key issues.
 
-I am interested in exploring data related to...
-Census data in Texas and how many people are undercounted (especially racial minorities and low income citizens), and how that affects state/county funding and resources in these areas. If possible, I would like to see how this is related to voting accessibility and how the new restrictive photo ID voting laws are also affecting these populations.
+## Merging Datasets
 
-## Written Proposal
-
-Does the grade assigned to an area by the Home Owner's Loan Corporation (HOLC) determine the racial demographics of that area? I plan to study how historical redlining has affected the racial makeup of cities today and how its effects are still present. The HOLC data is from maps drawn in 1935-1940. I predict that cities with lower HOLC scores in the past will have higher non-white populations and that cities with higher HOLC scores in the past will have lower non-white populations. My unit of analysis is each metro area (metro_area) (ex. Chicago). My explanatory variable is the HOLC grade (scale from A as "best" to D as "hazardous") and my outcome variable is the percentage of a population in a HOLC zone that is non-white (combination of pct_black, pct_hispanic, pct_asian, and pct_other). If I observe a higher HOLC score (A or B) in an area with a high white population or a lower HOLC score (C or D) in an area with a high non-white population, that will support my hypothesis. 
-
-## First Visualization
-
-```{r}
+```{r Merging Datasets}
 library(tidyverse)
-metro.grades <- read.csv("data/metro-grades.csv")
 
-holcpop_graph <- metro.grades |>
-  mutate(pct_nonwhite = pct_black + pct_hisp + pct_asian + pct_other) |>
-  group_by(holc_grade) |>
-  summarize(pct_popwhite = mean(pct_white),
-            pct_popnonwhite = mean(pct_nonwhite)) |>
-  pivot_longer(cols = c(pct_popwhite, pct_popnonwhite), 
-               names_to = "population_type",
-               values_to = "Percentage") |>
-    ggplot(mapping = aes(x = holc_grade, y = Percentage, fill = population_type)) +
-  geom_col(position = "dodge") + 
-  labs(
-    x = "Historic HOLC Grade",
-    y = "Percent of Population ",
-    title = "Historic HOLC Grade of Neighborhoods Compared to Their Current Racial Makeup",
-    labels = c("Percent of Nonwhite Population", "Percent of White Population")
-  ) +
-  scale_fill_discrete(name = "Racial Demographics", labels = c("Nonwhite Population", "White Population"))
-holcpop_graph
+urban <- read.csv("data/urbanization-state.csv")
+partisan <- read.csv("data/fivethirtyeight_partisan_lean_STATES.csv")
+
+merge <- urban |>
+  left_join(partisan)
+merge <- merge |> drop_na()
+
+merge <- merge |>
+  mutate(partisan_lean = if_else(X2022 >= 0, "Democrat", "Republican")) |>
+  mutate(partisan_score = X2022) |>
+  select(state, urbanindex, partisan_score, partisan_lean)
+merge 
 
 ```
-This graph shows the relationship between the average racial demographics of the neighborhoods included in this study and the Home Owner's Loan Corporation grade that the neighborhoods received between 1935 and 1940.
+I merged two datasets together (the data with the urban index and the data with the partisan score), dropped the American territories that were only included in one dataset, changed the X2022 variable to have a more informative name (partisan_score), and created a new variable to show whether a state leans Democrat or Republican.
 
 
-## Dallas/Fort Worth Area
+## State Count
 
-```{r}
-dfw <- metro.grades |>
-  filter(metro_area == "Dallas-Fort Worth-Arlington, TX") |>
-  group_by(holc_grade) |>
-  summarize(pct_popnonwhite = mean(pct_nonwhite)) |>
-  ggplot(mapping = aes(x = holc_grade, y = pct_popnonwhite, fill = holc_grade)) + 
-  geom_col() + 
-  labs(
-    x = "HOLC Grade",
-    y = "Percent Nonwhite Population",
-    title = "Percent Nonwhite Population Based on HOLC Grade in DFW Area"
-  ) + 
-  scale_fill_discrete(name = "HOLC Grade")
-
-dfw
-```
-
-## Atlanta Area
-
-```{r}
-atl <- metro.grades |>
-  filter(metro_area == "Atlanta-Sandy Springs-Alpharetta, GA") |>
-  group_by(holc_grade) |>
-  summarize(pct_popnonwhite = mean(pct_nonwhite)) |>
-  ggplot(mapping = aes(x = holc_grade, y = pct_popnonwhite, fill = holc_grade)) + 
-  geom_col() + 
-  labs(
-    x = "HOLC Grade",
-    y = "Percent Nonwhite Population",
-    title = "Percent Nonwhite Population Based on HOLC Grade in Atlanta Area"
-  ) + 
-  scale_fill_discrete(name = "HOLC Grade")
-
-atl
-```
-I have added a specific population breakdown for the Dallas-Fort Worth area and the Atlanta area to take a closer look at the two cities that I grew up in and to see how they compare to each other and to the average of all of the metro areas in this study. Atlanta and DFW have a similar nonwhite population percent for the A HOLC Grade, which is a little below the nonwhite population for the A Grade across all metro areas. The nonwhite population percent for B and C grades is lower for Atlanta than DFW, and Atlanta has a lower nonwhite population percent for these two grades than the average, while DFW has a higher one. Finally, the nonwhite population percent for Atlanta and Dallas for a D HOLC grade is higher than the metro area average, and pretty significantly higher for the DFW area especially.  
-
-
-## First Analysis
-
-```{r}
-metro.grades <- metro.grades |>
-  mutate(pct_nonwhite = pct_black + pct_hisp + pct_asian + pct_other,
-         holc_numeric = case_when(
-    holc_grade == "A" ~ 4,
-    holc_grade == "B" ~ 3,
-    holc_grade == "C" ~ 2, 
-    holc_grade == "D" ~ 1))
-mean(metro.grades$pct_nonwhite)
-
-diff_in_means <- metro.grades |>
- group_by(holc_grade) |>
-  summarize(mean_pct_nonwhite = mean(pct_nonwhite)) |>
+```{r State Count}
+state_party_table <- merge |>
+  group_by(partisan_lean) |>
+  summarize(count = n()) |>
   pivot_wider(
-    names_from = holc_grade,
-    values_from = mean_pct_nonwhite
+    names_from = partisan_lean,
+    values_from = count
+  )
+knitr::kable(state_party_table, caption = "Count of Republican and Democratic States")
+```
+This table shows the number of states for each party, so there are more Republican than Democratic states. There are 51 states because the District of Columbia is included.
+
+
+## Mean Urbanization Score by Party
+
+```{r Mean Urbanization Score by Party}
+mean_table <- merge |>
+  group_by(partisan_lean) |>
+  summarize(mean_urban = mean(urbanindex)) |>
+  pivot_wider(
+    names_from = partisan_lean,
+    values_from = mean_urban
   ) |>
-  mutate(diff = `D` - `A`)
-diff_in_means
+  mutate(difference = `Democrat` - `Republican`)
 
-knitr::kable(diff_in_means, digits = 2, col.names = c("Holc Grade A", "Holc Grade B", "Holc Grade C", "Holc Grade D", "Difference between D and A"), caption = "Average Nonwhite Population (%) Based on Holc Grade")
+knitr::kable(mean_table, digits = 2, col.names = c("Democrat", "Republican", "Difference"), 
+             caption = "Mean Urbanization Score by Party")
+```
+This table shows the average urbanization score from the urbanindex variable by party, so the average urban index score for Democratic states is 11.14 and the average urban index score for Republican states is 10.03, with an average difference of 1.11 between Democratic and Republican states.
+
+
+## Urbanization Boxplot
+
+```{r Urbanization Boxplot}
+urban_boxplot <- merge |>
+  ggplot(mapping = aes(x = partisan_lean, y = urbanindex)) + 
+  geom_boxplot(color = c("blue", "red")) + 
+  labs(
+    x = "Political Party",
+    y = "Urban Index Score",
+    title = "State Urbanization Scores by Party"
+  )
+urban_boxplot
+```
+This boxplot shows the distributions of urban index scores for the states by party, so we can see that both parties have a similar range, but the median urban index score for Democratic states is higher than the median urban index score for Republican states.
+
+
+## Urbanization Scatterplot
+
+```{r Urbanization Scatterplot}
+urban_partisan_plot <- merge |>
+  ggplot(mapping = aes(x = urbanindex, y = partisan_score, color = partisan_lean)) + 
+  geom_point(size = 3) + 
+  labs(
+    x = "Urban Index Score",
+    y = "Partistan Lean Score",
+    title = "Urbanization Score and Partisan Lean by State",
+    color = "State Party Identification"
+  ) + 
+  scale_color_manual(values = c("blue", "red")) + 
+  stat_summary_bin(fun = "mean", color = "purple", size = 0.5, alpha = 0.5, binwidth = 0.5)
+urban_partisan_plot
+```
+This scatterplot shows the Partisan Lean score compared to the Urban Index score for each state, with the points colored based on whether the overall lean for that state is Republican or Democratic. The purple points represent the binned means, or the average partisan lean scores for each urban index score. There is a positive linear correlation between the Partisan Lean score and the Urban Index score based on this scatterplot.
+
+## Urbanization Scatterplot with Line of Best Fit
+
+```{r Urbanization Scatterplot with Line of Best Fit}
+urban_partisan_plot_line <- merge |>
+  ggplot(mapping = aes(x = urbanindex, y = partisan_score, color = partisan_lean)) + 
+  geom_point(size = 3) + 
+  labs(
+    x = "Urban Index Score",
+    y = "Partistan Lean Score",
+    title = "Urbanization Score and Partisan Lean by State",
+    color = "State Party Identification"
+  ) + 
+  scale_color_manual(values = c("blue", "red")) + 
+  geom_smooth(color = "black")
+
+urban_partisan_plot_line
 
 ```
+This scatterplot is the same as above, comparing Partisan Lean score with Urban Index score for each state, but instead of the binned means, I have added a line of best fit to demonstrate the positive linear relationship between these two variables. As the urban index score increases, the partisan lean score increases (meaning that the states lean more Democratic), which supports my hypothesis.
 
-This table shows the average nonwhite population (in percent) based on each Holc Grade for the metro areas in this study. The column on the far right side shows the difference in the nonwhite population for an area with a Holc Grade of D and a Holc Grade of A, which means that areas with a Holc Grade of D had on average a 34 percentage point higher nonwhite population than areas with a Holc Grade of A. 
 
+## Linear Regression Model
 
-## Regression
+```{r Linear Regression Model}
+library(broom)
+fit1 <- lm(partisan_score ~ urbanindex, data = merge)
+fit1
 
-```{r}
-
+glance(fit1)
 ```
+My linear regression model with urbanization index as the explanatory variable and partisan score as the response variable predicts an intercept of -155.74 and a coefficient of 14.37. This intercept means that if the urbanization index score was 0, the partisan score would be -155.74, which would be extremely Republican. However this is not very useful or realistic because no states have an urbanization index score even close to 0; most are between 8 and 12.
+The coefficient means that for every increase by 1 in the urban index score, the partisan score is predicted to increase by 14.37 points. Since Democratic states have partisan lean scores greater than 0, this linear regression model supports my hypothesis because it predicts a positive linear relationship between the urbanization index score and the partisan score.
+Furthermore, my regression model has an r-squared value of 0.50, which means that 50% of the variance in the partisan score can be predicted by the urbanization index, so the urbanization index does have some influence on the partisan score.
+
+
+## Bootstrap Sampling and Hypothesis Test
+
+```{r Bootstrap Sampling and Hypothesis Test}
+library(infer)
+boots <- merge |>
+  rep_slice_sample(prop = 1, replace = TRUE, reps = 1000) |>
+  group_by(replicate, partisan_lean) |>
+  summarize(mean_urban = mean(urbanindex)) |>
+  pivot_wider(
+    names_from = partisan_lean,
+    values_from = mean_urban
+  ) |>
+  mutate(difference = `Democrat` - `Republican`)
+boots
+
+boots_ci <- boots |>
+  select(replicate, difference) |>
+  get_ci(level = 0.95, type = "percentile")
+knitr::kable(boots_ci, digits = 2, col.names = c("Lower CI", "Upper CI"))
+
+boots_ci_plot <- boots |>
+  ggplot(mapping = aes(x = difference)) + 
+  geom_histogram(fill = "hotpink2") + 
+  geom_vline(xintercept = c(0.55, 1.68), color = "purple", size = 1) + 
+  labs(
+    x = "Urbanization Difference (Democrat - Republican)",
+    y = "Repeated Sample Count"
+  )
+boots_ci_plot
+
+boots_p <- boots_ci |>
+  get_p_value(obs_stat = boots, direction = "both")
+
+knitr::kable(boots_p, col.names = c("P-Value"))
+```
+Here, I did a bootstrap sample with 1,000 replications, so 1,000 different combinations were made from my dataset, with the first table showing the average urbanization score for the Democratic and Republican states in each sample, with the difference (Democrat - Republican) in the urbanization scores in the final column. I then calculated a 95% confidence interval for these samples, which is shown in the second table, and the graph shows the distribution of the difference in the urbanization scores for the Democratic and Republican states, with the confidence intervals shown with the vertical purple lines. 
+As the graph and CI table show, the lower and upper bounds of the 95% confidence interval are greater than zero, so 95% of the time in repeated samples, the Democratic states had a higher urbanization score than the Republican states. This supports my hypothesis from the introduction because there is very little likelihood that a Republican state has a higher urbanization score than a Democratic state.
+Furthermore, my hypothesis test from my bootstrap sampling has a p-value of 0 with an alpha level of 0.05, meaning that I can reject the null hypothesis that there is no significant relationship between a state's urbanization score and its partisan lean. This means that there is a statistically significant relationship between the urbanization score and partisan score of a state. 
+
+
+## Conclusion
+
+Through my linear regression model, confidence interval from bootstrap tests, and p-value, I have found significant support for my hypothesis that there is a correlation between a state's urbanization score and its partisan lean. A potential confounder to my results could be the inaccuracies in the census data and undercounting the population in some states, which would cause the urbanization score in this dataset to be lower than it actually is. Also, cities tend to be more Democratic and have much denser populations than rural areas, so many of the citizens that lean Democratic are concentrated in certain areas (as shown in one of the above tables, there are 30 Republican states and only 21 Democratic ones). Furthermore, cities tend to have higher POC populations than rural areas, and minority populations tend to vote Democratic, so just looking at population density may not provide the whole picture of factors that affect a state's partisan lean. If I had more time or money, I would improve this analysis by adding data regarding the proportion of the population of each state that lives in a city vs. a rural area and what the racial/ethnic minority and low-income population of each state is. 
+
+
+
+
+
 
 
 

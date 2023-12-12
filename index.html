@@ -115,7 +115,7 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
   <!--/radix_placeholder_rmarkdown_metadata-->
   
   <script type="text/json" id="radix-resource-manifest">
-  {"type":"character","attributes":{},"value":["data/metro-grades.csv","index_files/anchor-4.2.2/anchor.min.js","index_files/bowser-1.9.3/bowser.min.js","index_files/distill-2.2.21/template.v2.js","index_files/figure-html5/unnamed-chunk-1-1.png","index_files/header-attrs-2.17/header-attrs.js","index_files/header-attrs-2.24/header-attrs.js","index_files/jquery-3.6.0/jquery-3.6.0.js","index_files/jquery-3.6.0/jquery-3.6.0.min.js","index_files/jquery-3.6.0/jquery-3.6.0.min.map","index_files/popper-2.6.0/popper.min.js","index_files/tippy-6.2.7/tippy-bundle.umd.min.js","index_files/tippy-6.2.7/tippy-light-border.css","index_files/tippy-6.2.7/tippy.css","index_files/tippy-6.2.7/tippy.umd.min.js","index_files/webcomponents-2.0.0/webcomponents.js"]}
+  {"type":"character","attributes":{},"value":["data/fivethirtyeight_partisan_lean_STATES.csv","data/metro-grades.csv","data/urbanization-state.csv","index_files/anchor-4.2.2/anchor.min.js","index_files/bowser-1.9.3/bowser.min.js","index_files/distill-2.2.21/template.v2.js","index_files/figure-html5/Bootstrap Sampling and Hypothesis Test-1.png","index_files/figure-html5/unnamed-chunk-1-1.png","index_files/figure-html5/unnamed-chunk-2-1.png","index_files/figure-html5/unnamed-chunk-3-1.png","index_files/figure-html5/unnamed-chunk-4-1.png","index_files/figure-html5/unnamed-chunk-5-1.png","index_files/figure-html5/unnamed-chunk-6-1.png","index_files/figure-html5/unnamed-chunk-7-1.png","index_files/figure-html5/unnamed-chunk-8-1.png","index_files/figure-html5/unnamed-chunk-9-1.png","index_files/figure-html5/Urbanization Boxplot-1.png","index_files/figure-html5/Urbanization Scatterplot with Line of Best Fit-1.png","index_files/figure-html5/Urbanization Scatterplot-1.png","index_files/header-attrs-2.17/header-attrs.js","index_files/header-attrs-2.24/header-attrs.js","index_files/jquery-3.6.0/jquery-3.6.0.js","index_files/jquery-3.6.0/jquery-3.6.0.min.js","index_files/jquery-3.6.0/jquery-3.6.0.min.map","index_files/kePrint-0.0.1/kePrint.js","index_files/lightable-0.0.1/lightable.css","index_files/popper-2.6.0/popper.min.js","index_files/tippy-6.2.7/tippy-bundle.umd.min.js","index_files/tippy-6.2.7/tippy-light-border.css","index_files/tippy-6.2.7/tippy.css","index_files/tippy-6.2.7/tippy.umd.min.js","index_files/webcomponents-2.0.0/webcomponents.js"]}
   </script>
   <!--radix_placeholder_navigation_in_header-->
   <!--/radix_placeholder_navigation_in_header-->
@@ -1543,101 +1543,315 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 </div>
 
 <div class="d-article">
-<h2 id="project-thoughts">Project thoughts</h2>
-<p>I am interested in exploring data related to…
-Census data in Texas and how many people are undercounted (especially racial minorities and low income citizens), and how that affects state/county funding and resources in these areas. If possible, I would like to see how this is related to voting accessibility and how the new restrictive photo ID voting laws are also affecting these populations.</p>
-<h2 id="written-proposal">Written Proposal</h2>
-<p>Does the grade assigned to an area by the Home Owner’s Loan Corporation (HOLC) determine the racial demographics of that area? I plan to study how historical redlining has affected the racial makeup of cities today and how its effects are still present. The HOLC data is from maps drawn in 1935-1940. I predict that cities with lower HOLC scores in the past will have higher non-white populations and that cities with higher HOLC scores in the past will have lower non-white populations. My unit of analysis is each metro area (metro_area) (ex. Chicago). My explanatory variable is the HOLC grade (scale from A as “best” to D as “hazardous”) and my outcome variable is the percentage of a population in a HOLC zone that is non-white (combination of pct_black, pct_hispanic, pct_asian, and pct_other). If I observe a higher HOLC score (A or B) in an area with a high white population or a lower HOLC score (C or D) in an area with a high non-white population, that will support my hypothesis.</p>
-<h2 id="first-visualization">First Visualization</h2>
+<h2 id="introduction">Introduction</h2>
+<p>Is the urbanization level of a state related to which political party that state leans toward? In this study, I plan to examine how the urban index of a state, or the density of its population, relates to how the people living in that state identify politically. I expect that the states that are more urban will lean more Democratic while the states that are more rural will lean more Republican. My explanatory variable is the urban index score (urbanindex), which as the source of the dataset Five Thirty Eight explains, “This number is calculated as the natural logarithm of the average number of people living within a five-mile radius of a given resident in each census tract in that state.” My outcome variable is the partisan lean score, which Five Thirty Eight explains is calculated as follows:
+“This version of partisan lean, meant to be used for congressional and gubernatorial elections, is calculated as 50 percent the state or district’s lean relative to the nation in the most recent presidential election, 25 percent its relative lean in the second-most-recent presidential election and 25 percent a custom state-legislative lean based on the statewide popular vote in the four most recent state House elections.”
+Through this calculation, positive numbers for the partisan lean mean a Democratic lean and negative numbers mean a Republican lean. Therefore, I expect that there will be a positive relationship between the urban index and the partisan lean, so a positive coefficient on my linear regression would support that hypothesis.
+It is important to understand this relationship because knowing what factors influence people’s voting choices or preferences is helpful for predicting election outcomes. Also, it is important to understand how a person’s environment affects their political views as US politics become more polarized and it becomes very useful to understand what factors influence people’s beliefs on key issues.</p>
+<h2 id="merging-datasets">Merging Datasets</h2>
 <div class="layout-chunk" data-layout="l-body">
 <div class="sourceCode">
 <pre class="sourceCode r"><code class="sourceCode r"><span><span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://tidyverse.tidyverse.org'>tidyverse</a></span><span class='op'>)</span></span>
-<span><span class='va'>metro.grades</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/utils/read.table.html'>read.csv</a></span><span class='op'>(</span><span class='st'>"data/metro-grades.csv"</span><span class='op'>)</span></span>
 <span></span>
-<span><span class='va'>holcpop_graph</span> <span class='op'>&lt;-</span> <span class='va'>metro.grades</span> <span class='op'>|&gt;</span></span>
-<span>  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='op'>(</span>pct_nonwhite <span class='op'>=</span> <span class='va'>pct_black</span> <span class='op'>+</span> <span class='va'>pct_hisp</span> <span class='op'>+</span> <span class='va'>pct_asian</span> <span class='op'>+</span> <span class='va'>pct_other</span><span class='op'>)</span> <span class='op'>|&gt;</span></span>
-<span>  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/group_by.html'>group_by</a></span><span class='op'>(</span><span class='va'>holc_grade</span><span class='op'>)</span> <span class='op'>|&gt;</span></span>
-<span>  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarize</a></span><span class='op'>(</span>pct_popwhite <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='op'>(</span><span class='va'>pct_white</span><span class='op'>)</span>,</span>
-<span>            pct_popnonwhite <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='op'>(</span><span class='va'>pct_nonwhite</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>|&gt;</span></span>
-<span>  <span class='fu'><a href='https://tidyr.tidyverse.org/reference/pivot_longer.html'>pivot_longer</a></span><span class='op'>(</span>cols <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='va'>pct_popwhite</span>, <span class='va'>pct_popnonwhite</span><span class='op'>)</span>, </span>
-<span>               names_to <span class='op'>=</span> <span class='st'>"population_type"</span>,</span>
-<span>               values_to <span class='op'>=</span> <span class='st'>"Percentage"</span><span class='op'>)</span> <span class='op'>|&gt;</span></span>
-<span>    <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></span><span class='op'>(</span>mapping <span class='op'>=</span> <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>holc_grade</span>, y <span class='op'>=</span> <span class='va'>Percentage</span>, fill <span class='op'>=</span> <span class='va'>population_type</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>+</span></span>
-<span>  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/geom_bar.html'>geom_col</a></span><span class='op'>(</span>position <span class='op'>=</span> <span class='st'>"dodge"</span><span class='op'>)</span> <span class='op'>+</span> </span>
-<span>  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/labs.html'>labs</a></span><span class='op'>(</span></span>
-<span>    x <span class='op'>=</span> <span class='st'>"Historic HOLC Grade"</span>,</span>
-<span>    y <span class='op'>=</span> <span class='st'>"Percent of Population "</span>,</span>
-<span>    title <span class='op'>=</span> <span class='st'>"Historic HOLC Grade of Neighborhoods Compared to Their Current Racial Makeup"</span>,</span>
-<span>    labels <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"Percent of Nonwhite Population"</span>, <span class='st'>"Percent of White Population"</span><span class='op'>)</span></span>
-<span>  <span class='op'>)</span> <span class='op'>+</span></span>
-<span>  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/scale_colour_discrete.html'>scale_fill_discrete</a></span><span class='op'>(</span>name <span class='op'>=</span> <span class='st'>"Racial Demographics"</span>, labels <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"Nonwhite Population"</span>, <span class='st'>"White Population"</span><span class='op'>)</span><span class='op'>)</span></span>
-<span><span class='va'>holcpop_graph</span></span></code></pre>
+<span><span class='va'>urban</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/utils/read.table.html'>read.csv</a></span><span class='op'>(</span><span class='st'>"data/urbanization-state.csv"</span><span class='op'>)</span></span>
+<span><span class='va'>partisan</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/utils/read.table.html'>read.csv</a></span><span class='op'>(</span><span class='st'>"data/fivethirtyeight_partisan_lean_STATES.csv"</span><span class='op'>)</span></span>
+<span></span>
+<span><span class='va'>merge</span> <span class='op'>&lt;-</span> <span class='va'>urban</span> <span class='op'>|&gt;</span></span>
+<span>  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate-joins.html'>left_join</a></span><span class='op'>(</span><span class='va'>partisan</span><span class='op'>)</span></span>
+<span><span class='va'>merge</span> <span class='op'>&lt;-</span> <span class='va'>merge</span> <span class='op'>|&gt;</span> <span class='fu'><a href='https://tidyr.tidyverse.org/reference/drop_na.html'>drop_na</a></span><span class='op'>(</span><span class='op'>)</span></span>
+<span></span>
+<span><span class='va'>merge</span> <span class='op'>&lt;-</span> <span class='va'>merge</span> <span class='op'>|&gt;</span></span>
+<span>  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='op'>(</span>partisan_lean <span class='op'>=</span> <span class='fu'><a href='https://dplyr.tidyverse.org/reference/if_else.html'>if_else</a></span><span class='op'>(</span><span class='va'>X2022</span> <span class='op'>&gt;=</span> <span class='fl'>0</span>, <span class='st'>"Democrat"</span>, <span class='st'>"Republican"</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>|&gt;</span></span>
+<span>  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='op'>(</span>partisan_score <span class='op'>=</span> <span class='va'>X2022</span><span class='op'>)</span> <span class='op'>|&gt;</span></span>
+<span>  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span><span class='op'>(</span><span class='va'>state</span>, <span class='va'>urbanindex</span>, <span class='va'>partisan_score</span>, <span class='va'>partisan_lean</span><span class='op'>)</span></span>
+<span><span class='va'>merge</span> </span></code></pre>
 </div>
-<p><img src="index_files/figure-html5/unnamed-chunk-1-1.png" width="624" /></p>
+<pre><code>                  state urbanindex partisan_score partisan_lean
+1               Alabama   9.605935    -29.1797400    Republican
+2                Alaska   8.735964    -14.6111000    Republican
+3               Arizona  11.299710     -7.1713090    Republican
+4              Arkansas   9.259444    -31.5017600    Republican
+5            California  12.190280     25.7452700      Democrat
+6              Colorado  11.154450      6.7502340      Democrat
+7           Connecticut  11.409680     12.1459200      Democrat
+8              Delaware  11.009990     13.9231700      Democrat
+9  District of Columbia  13.440570     68.3235800      Democrat
+10              Florida  11.464840     -7.3968780    Republican
+11              Georgia  10.552330     -7.3575490    Republican
+12               Hawaii  11.086210     31.8124100      Democrat
+13                Idaho   9.593634    -36.7905100    Republican
+14             Illinois  11.623720     13.2091900      Democrat
+15              Indiana  10.410500    -20.2563400    Republican
+16                 Iowa   9.593525     -9.6112770    Republican
+17               Kansas  10.120440    -21.0736200    Republican
+18             Kentucky   9.789536    -27.1887100    Republican
+19            Louisiana  10.175180    -20.3968200    Republican
+20                Maine   9.037091      4.3798310      Democrat
+21             Maryland  11.711050     26.2639000      Democrat
+22        Massachusetts  11.839730     32.6772300      Democrat
+23             Michigan  10.805590     -1.1759740    Republican
+24            Minnesota  10.456840      1.9952610      Democrat
+25          Mississippi   8.910859    -19.7826600    Republican
+26             Missouri  10.202120    -20.9801800    Republican
+27              Montana   8.470226    -19.9066500    Republican
+28             Nebraska  10.199120    -24.7509700    Republican
+29               Nevada  11.769720     -2.5900500    Republican
+30        New Hampshire   9.917139      0.5663683      Democrat
+31           New Jersey  12.235650     11.3462200      Democrat
+32           New Mexico   9.896993      7.1501430      Democrat
+33             New York  12.558570     19.9021900      Democrat
+34       North Carolina  10.324810     -4.8155060    Republican
+35         North Dakota   9.054678    -37.0697800    Republican
+36                 Ohio  10.876870    -12.1064400    Republican
+37             Oklahoma   9.939280    -36.8685500    Republican
+38               Oregon  10.712330     10.6045400      Democrat
+39         Pennsylvania  11.146230     -2.9677600    Republican
+40         Rhode Island  11.721240     23.6675100      Democrat
+41       South Carolina  10.111420    -18.2659700    Republican
+42         South Dakota   8.728642    -32.0032000    Republican
+43            Tennessee  10.197290    -29.2050000    Republican
+44                Texas  11.174880    -12.9027800    Republican
+45                 Utah  10.962810    -26.2832300    Republican
+46              Vermont   8.843222     27.7797300      Democrat
+47             Virginia  10.906250      3.6016130      Democrat
+48           Washington  11.119330     12.4383900      Democrat
+49        West Virginia   9.111112    -35.5775700    Republican
+50            Wisconsin  10.191310     -3.8399760    Republican
+51              Wyoming   8.256294    -49.8665100    Republican</code></pre>
 </div>
-<p>This graph shows the relationship between the average racial demographics of the neighborhoods included in this study and the Home Owner’s Loan Corporation grade that the neighborhoods received between 1935 and 1940.</p>
-<h2 id="first-analysis">First Analysis</h2>
+<p>I merged two datasets together (the data with the urban index and the data with the partisan score), dropped the American territories that were only included in one dataset, changed the X2022 variable to have a more informative name (partisan_score), and created a new variable to show whether a state leans Democrat or Republican.</p>
+<h2 id="state-count">State Count</h2>
 <div class="layout-chunk" data-layout="l-body">
 <div class="sourceCode">
-<pre class="sourceCode r"><code class="sourceCode r"><span><span class='va'>metro.grades</span> <span class='op'>&lt;-</span> <span class='va'>metro.grades</span> <span class='op'>|&gt;</span></span>
-<span>  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='op'>(</span>pct_nonwhite <span class='op'>=</span> <span class='va'>pct_black</span> <span class='op'>+</span> <span class='va'>pct_hisp</span> <span class='op'>+</span> <span class='va'>pct_asian</span> <span class='op'>+</span> <span class='va'>pct_other</span>,</span>
-<span>         holc_numeric <span class='op'>=</span> <span class='fu'><a href='https://dplyr.tidyverse.org/reference/case_when.html'>case_when</a></span><span class='op'>(</span></span>
-<span>    <span class='va'>holc_grade</span> <span class='op'>==</span> <span class='st'>"A"</span> <span class='op'>~</span> <span class='fl'>4</span>,</span>
-<span>    <span class='va'>holc_grade</span> <span class='op'>==</span> <span class='st'>"B"</span> <span class='op'>~</span> <span class='fl'>3</span>,</span>
-<span>    <span class='va'>holc_grade</span> <span class='op'>==</span> <span class='st'>"C"</span> <span class='op'>~</span> <span class='fl'>2</span>, </span>
-<span>    <span class='va'>holc_grade</span> <span class='op'>==</span> <span class='st'>"D"</span> <span class='op'>~</span> <span class='fl'>1</span><span class='op'>)</span><span class='op'>)</span></span>
-<span><span class='fu'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='op'>(</span><span class='va'>metro.grades</span><span class='op'>$</span><span class='va'>pct_nonwhite</span><span class='op'>)</span></span></code></pre>
-</div>
-<pre><code>[1] 44.54768</code></pre>
-<div class="sourceCode">
-<pre class="sourceCode r"><code class="sourceCode r"><span><span class='va'>diff_in_means</span> <span class='op'>&lt;-</span> <span class='va'>metro.grades</span> <span class='op'>|&gt;</span></span>
-<span> <span class='fu'><a href='https://dplyr.tidyverse.org/reference/group_by.html'>group_by</a></span><span class='op'>(</span><span class='va'>holc_grade</span><span class='op'>)</span> <span class='op'>|&gt;</span></span>
-<span>  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarize</a></span><span class='op'>(</span>mean_pct_nonwhite <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='op'>(</span><span class='va'>pct_nonwhite</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>|&gt;</span></span>
+<pre class="sourceCode r"><code class="sourceCode r"><span><span class='va'>state_party_table</span> <span class='op'>&lt;-</span> <span class='va'>merge</span> <span class='op'>|&gt;</span></span>
+<span>  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/group_by.html'>group_by</a></span><span class='op'>(</span><span class='va'>partisan_lean</span><span class='op'>)</span> <span class='op'>|&gt;</span></span>
+<span>  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarize</a></span><span class='op'>(</span>count <span class='op'>=</span> <span class='fu'><a href='https://dplyr.tidyverse.org/reference/context.html'>n</a></span><span class='op'>(</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>|&gt;</span></span>
 <span>  <span class='fu'><a href='https://tidyr.tidyverse.org/reference/pivot_wider.html'>pivot_wider</a></span><span class='op'>(</span></span>
-<span>    names_from <span class='op'>=</span> <span class='va'>holc_grade</span>,</span>
-<span>    values_from <span class='op'>=</span> <span class='va'>mean_pct_nonwhite</span></span>
-<span>  <span class='op'>)</span> <span class='op'>|&gt;</span></span>
-<span>  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='op'>(</span>diff <span class='op'>=</span> <span class='va'>`D`</span> <span class='op'>-</span> <span class='va'>`A`</span><span class='op'>)</span></span>
-<span><span class='va'>diff_in_means</span></span></code></pre>
-</div>
-<pre><code># A tibble: 1 × 5
-      A     B     C     D  diff
-  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
-1  26.2  40.1  51.3  60.6  34.4</code></pre>
-<div class="sourceCode">
-<pre class="sourceCode r"><code class="sourceCode r"><span><span class='fu'>knitr</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/knitr/man/kable.html'>kable</a></span><span class='op'>(</span><span class='va'>diff_in_means</span>, col.names <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"Holc Grade A"</span>, <span class='st'>"Holc Grade B"</span>, <span class='st'>"Holc Grade C"</span>, <span class='st'>"Holc Grade D"</span>, <span class='st'>"Difference between D and A"</span><span class='op'>)</span>, caption <span class='op'>=</span> <span class='st'>"Average Nonwhite Population (%) Based on Holc Grade"</span><span class='op'>)</span></span></code></pre>
+<span>    names_from <span class='op'>=</span> <span class='va'>partisan_lean</span>,</span>
+<span>    values_from <span class='op'>=</span> <span class='va'>count</span></span>
+<span>  <span class='op'>)</span></span>
+<span><span class='fu'>knitr</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/knitr/man/kable.html'>kable</a></span><span class='op'>(</span><span class='va'>state_party_table</span>, caption <span class='op'>=</span> <span class='st'>"Count of Republican and Democratic States"</span><span class='op'>)</span></span></code></pre>
 </div>
 <table>
-<caption><span id="tab:unnamed-chunk-2">Table 1: </span>Average Nonwhite Population (%) Based on Holc Grade</caption>
-<colgroup>
-<col style="width: 16%" />
-<col style="width: 16%" />
-<col style="width: 16%" />
-<col style="width: 16%" />
-<col style="width: 34%" />
-</colgroup>
+<caption>(#tab:State Count)Count of Republican and Democratic States</caption>
 <thead>
 <tr class="header">
-<th style="text-align: right;">Holc Grade A</th>
-<th style="text-align: right;">Holc Grade B</th>
-<th style="text-align: right;">Holc Grade C</th>
-<th style="text-align: right;">Holc Grade D</th>
-<th style="text-align: right;">Difference between D and A</th>
+<th style="text-align: right;">Democrat</th>
+<th style="text-align: right;">Republican</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: right;">26.22478</td>
-<td style="text-align: right;">40.06029</td>
-<td style="text-align: right;">51.34883</td>
-<td style="text-align: right;">60.60609</td>
-<td style="text-align: right;">34.3813</td>
+<td style="text-align: right;">20</td>
+<td style="text-align: right;">31</td>
 </tr>
 </tbody>
 </table>
 </div>
-<p>This table shows the average nonwhite population (in percent) based on each Holc Grade for the metro areas in this study. The column on the far right side shows the difference in the nonwhite population for an area with a Holc Grade of D and a Holc Grade of A, which means that areas with a Holc Grade of D had on average a 34 percentage point higher nonwhite population than areas with a Holc Grade of A.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
+<p>This table shows the number of states for each party, so there are more Republican than Democratic states. There are 51 states because the District of Columbia is included.</p>
+<h2 id="mean-urbanization-score-by-party">Mean Urbanization Score by Party</h2>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span><span class='va'>mean_table</span> <span class='op'>&lt;-</span> <span class='va'>merge</span> <span class='op'>|&gt;</span></span>
+<span>  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/group_by.html'>group_by</a></span><span class='op'>(</span><span class='va'>partisan_lean</span><span class='op'>)</span> <span class='op'>|&gt;</span></span>
+<span>  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarize</a></span><span class='op'>(</span>mean_urban <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='op'>(</span><span class='va'>urbanindex</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>|&gt;</span></span>
+<span>  <span class='fu'><a href='https://tidyr.tidyverse.org/reference/pivot_wider.html'>pivot_wider</a></span><span class='op'>(</span></span>
+<span>    names_from <span class='op'>=</span> <span class='va'>partisan_lean</span>,</span>
+<span>    values_from <span class='op'>=</span> <span class='va'>mean_urban</span></span>
+<span>  <span class='op'>)</span> <span class='op'>|&gt;</span></span>
+<span>  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='op'>(</span>difference <span class='op'>=</span> <span class='va'>`Democrat`</span> <span class='op'>-</span> <span class='va'>`Republican`</span><span class='op'>)</span></span>
+<span></span>
+<span><span class='fu'>knitr</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/knitr/man/kable.html'>kable</a></span><span class='op'>(</span><span class='va'>mean_table</span>, digits <span class='op'>=</span> <span class='fl'>2</span>, col.names <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"Democrat"</span>, <span class='st'>"Republican"</span>, <span class='st'>"Difference"</span><span class='op'>)</span>, </span>
+<span>             caption <span class='op'>=</span> <span class='st'>"Mean Urbanization Score by Party"</span><span class='op'>)</span></span></code></pre>
+</div>
+<table>
+<caption>(#tab:Mean Urbanization Score by Party)Mean Urbanization Score by Party</caption>
+<thead>
+<tr class="header">
+<th style="text-align: right;">Democrat</th>
+<th style="text-align: right;">Republican</th>
+<th style="text-align: right;">Difference</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">11.14</td>
+<td style="text-align: right;">10.03</td>
+<td style="text-align: right;">1.11</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>This table shows the average urbanization score from the urbanindex variable by party, so the average urban index score for Democratic states is 11.14 and the average urban index score for Republican states is 10.03, with an average difference of 1.11 between Democratic and Republican states.</p>
+<h2 id="urbanization-boxplot">Urbanization Boxplot</h2>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span><span class='va'>urban_boxplot</span> <span class='op'>&lt;-</span> <span class='va'>merge</span> <span class='op'>|&gt;</span></span>
+<span>  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></span><span class='op'>(</span>mapping <span class='op'>=</span> <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>partisan_lean</span>, y <span class='op'>=</span> <span class='va'>urbanindex</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>+</span> </span>
+<span>  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/geom_boxplot.html'>geom_boxplot</a></span><span class='op'>(</span>color <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"blue"</span>, <span class='st'>"red"</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>+</span> </span>
+<span>  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/labs.html'>labs</a></span><span class='op'>(</span></span>
+<span>    x <span class='op'>=</span> <span class='st'>"Political Party"</span>,</span>
+<span>    y <span class='op'>=</span> <span class='st'>"Urban Index Score"</span>,</span>
+<span>    title <span class='op'>=</span> <span class='st'>"State Urbanization Scores by Party"</span></span>
+<span>  <span class='op'>)</span></span>
+<span><span class='va'>urban_boxplot</span></span></code></pre>
+</div>
+<p><img src="index_files/figure-html5/Urbanization%20Boxplot-1.png" width="624" /></p>
+</div>
+<p>This boxplot shows the distributions of urban index scores for the states by party, so we can see that both parties have a similar range, but the median urban index score for Democratic states is higher than the median urban index score for Republican states.</p>
+<h2 id="urbanization-scatterplot">Urbanization Scatterplot</h2>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span><span class='va'>urban_partisan_plot</span> <span class='op'>&lt;-</span> <span class='va'>merge</span> <span class='op'>|&gt;</span></span>
+<span>  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></span><span class='op'>(</span>mapping <span class='op'>=</span> <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>urbanindex</span>, y <span class='op'>=</span> <span class='va'>partisan_score</span>, color <span class='op'>=</span> <span class='va'>partisan_lean</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>+</span> </span>
+<span>  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/geom_point.html'>geom_point</a></span><span class='op'>(</span>size <span class='op'>=</span> <span class='fl'>3</span><span class='op'>)</span> <span class='op'>+</span> </span>
+<span>  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/labs.html'>labs</a></span><span class='op'>(</span></span>
+<span>    x <span class='op'>=</span> <span class='st'>"Urban Index Score"</span>,</span>
+<span>    y <span class='op'>=</span> <span class='st'>"Partistan Lean Score"</span>,</span>
+<span>    title <span class='op'>=</span> <span class='st'>"Urbanization Score and Partisan Lean by State"</span>,</span>
+<span>    color <span class='op'>=</span> <span class='st'>"State Party Identification"</span></span>
+<span>  <span class='op'>)</span> <span class='op'>+</span> </span>
+<span>  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/scale_manual.html'>scale_color_manual</a></span><span class='op'>(</span>values <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"blue"</span>, <span class='st'>"red"</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>+</span> </span>
+<span>  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/stat_summary.html'>stat_summary_bin</a></span><span class='op'>(</span>fun <span class='op'>=</span> <span class='st'>"mean"</span>, color <span class='op'>=</span> <span class='st'>"purple"</span>, size <span class='op'>=</span> <span class='fl'>0.5</span>, alpha <span class='op'>=</span> <span class='fl'>0.5</span>, binwidth <span class='op'>=</span> <span class='fl'>0.5</span><span class='op'>)</span></span>
+<span><span class='va'>urban_partisan_plot</span></span></code></pre>
+</div>
+<p><img src="index_files/figure-html5/Urbanization%20Scatterplot-1.png" width="624" /></p>
+</div>
+<p>This scatterplot shows the Partisan Lean score compared to the Urban Index score for each state, with the points colored based on whether the overall lean for that state is Republican or Democratic. The purple points represent the binned means, or the average partisan lean scores for each urban index score. There is a positive linear correlation between the Partisan Lean score and the Urban Index score based on this scatterplot.</p>
+<h2 id="urbanization-scatterplot-with-line-of-best-fit">Urbanization Scatterplot with Line of Best Fit</h2>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span><span class='va'>urban_partisan_plot_line</span> <span class='op'>&lt;-</span> <span class='va'>merge</span> <span class='op'>|&gt;</span></span>
+<span>  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></span><span class='op'>(</span>mapping <span class='op'>=</span> <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>urbanindex</span>, y <span class='op'>=</span> <span class='va'>partisan_score</span>, color <span class='op'>=</span> <span class='va'>partisan_lean</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>+</span> </span>
+<span>  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/geom_point.html'>geom_point</a></span><span class='op'>(</span>size <span class='op'>=</span> <span class='fl'>3</span><span class='op'>)</span> <span class='op'>+</span> </span>
+<span>  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/labs.html'>labs</a></span><span class='op'>(</span></span>
+<span>    x <span class='op'>=</span> <span class='st'>"Urban Index Score"</span>,</span>
+<span>    y <span class='op'>=</span> <span class='st'>"Partistan Lean Score"</span>,</span>
+<span>    title <span class='op'>=</span> <span class='st'>"Urbanization Score and Partisan Lean by State"</span>,</span>
+<span>    color <span class='op'>=</span> <span class='st'>"State Party Identification"</span></span>
+<span>  <span class='op'>)</span> <span class='op'>+</span> </span>
+<span>  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/scale_manual.html'>scale_color_manual</a></span><span class='op'>(</span>values <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"blue"</span>, <span class='st'>"red"</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>+</span> </span>
+<span>  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/geom_smooth.html'>geom_smooth</a></span><span class='op'>(</span>color <span class='op'>=</span> <span class='st'>"black"</span><span class='op'>)</span></span>
+<span></span>
+<span><span class='va'>urban_partisan_plot_line</span></span></code></pre>
+</div>
+<p><img src="index_files/figure-html5/Urbanization%20Scatterplot%20with%20Line%20of%20Best%20Fit-1.png" width="624" /></p>
+</div>
+<p>This scatterplot is the same as above, comparing Partisan Lean score with Urban Index score for each state, but instead of the binned means, I have added a line of best fit to demonstrate the positive linear relationship between these two variables. As the urban index score increases, the partisan lean score increases (meaning that the states lean more Democratic), which supports my hypothesis.</p>
+<h2 id="linear-regression-model">Linear Regression Model</h2>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span><span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://broom.tidymodels.org/'>broom</a></span><span class='op'>)</span></span>
+<span><span class='va'>fit1</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/lm.html'>lm</a></span><span class='op'>(</span><span class='va'>partisan_score</span> <span class='op'>~</span> <span class='va'>urbanindex</span>, data <span class='op'>=</span> <span class='va'>merge</span><span class='op'>)</span></span>
+<span><span class='va'>fit1</span></span></code></pre>
+</div>
+<pre><code>
+Call:
+lm(formula = partisan_score ~ urbanindex, data = merge)
+
+Coefficients:
+(Intercept)   urbanindex  
+    -155.74        14.37  </code></pre>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span><span class='fu'><a href='https://generics.r-lib.org/reference/glance.html'>glance</a></span><span class='op'>(</span><span class='va'>fit1</span><span class='op'>)</span></span></code></pre>
+</div>
+<pre><code># A tibble: 1 × 12
+  r.squared adj.r.squared sigma statistic   p.value    df logLik   AIC
+      &lt;dbl&gt;         &lt;dbl&gt; &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt;
+1     0.501         0.491  16.5      49.2   6.26e-9     1  -214.  435.
+# ℹ 4 more variables: BIC &lt;dbl&gt;, deviance &lt;dbl&gt;, df.residual &lt;int&gt;,
+#   nobs &lt;int&gt;</code></pre>
+</div>
+<p>My linear regression model with urbanization index as the explanatory variable and partisan score as the response variable predicts an intercept of -155.74 and a coefficient of 14.37. This intercept means that if the urbanization index score was 0, the partisan score would be -155.74, which would be extremely Republican. However this is not very useful or realistic because no states have an urbanization index score even close to 0; most are between 8 and 12.
+The coefficient means that for every increase by 1 in the urban index score, the partisan score is predicted to increase by 14.37 points. Since Democratic states have partisan lean scores greater than 0, this linear regression model supports my hypothesis because it predicts a positive linear relationship between the urbanization index score and the partisan score.
+Furthermore, my regression model has an r-squared value of 0.50, which means that 50% of the variance in the partisan score can be predicted by the urbanization index, so the urbanization index does have some influence on the partisan score.</p>
+<h2 id="bootstrap-sampling-and-hypothesis-test">Bootstrap Sampling and Hypothesis Test</h2>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span><span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://github.com/tidymodels/infer'>infer</a></span><span class='op'>)</span></span>
+<span><span class='va'>boots</span> <span class='op'>&lt;-</span> <span class='va'>merge</span> <span class='op'>|&gt;</span></span>
+<span>  <span class='fu'><a href='https://infer.tidymodels.org/reference/rep_sample_n.html'>rep_slice_sample</a></span><span class='op'>(</span>prop <span class='op'>=</span> <span class='fl'>1</span>, replace <span class='op'>=</span> <span class='cn'>TRUE</span>, reps <span class='op'>=</span> <span class='fl'>1000</span><span class='op'>)</span> <span class='op'>|&gt;</span></span>
+<span>  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/group_by.html'>group_by</a></span><span class='op'>(</span><span class='va'>replicate</span>, <span class='va'>partisan_lean</span><span class='op'>)</span> <span class='op'>|&gt;</span></span>
+<span>  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarize</a></span><span class='op'>(</span>mean_urban <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='op'>(</span><span class='va'>urbanindex</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>|&gt;</span></span>
+<span>  <span class='fu'><a href='https://tidyr.tidyverse.org/reference/pivot_wider.html'>pivot_wider</a></span><span class='op'>(</span></span>
+<span>    names_from <span class='op'>=</span> <span class='va'>partisan_lean</span>,</span>
+<span>    values_from <span class='op'>=</span> <span class='va'>mean_urban</span></span>
+<span>  <span class='op'>)</span> <span class='op'>|&gt;</span></span>
+<span>  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='op'>(</span>difference <span class='op'>=</span> <span class='va'>`Democrat`</span> <span class='op'>-</span> <span class='va'>`Republican`</span><span class='op'>)</span></span>
+<span><span class='va'>boots</span></span></code></pre>
+</div>
+<pre><code># A tibble: 1,000 × 4
+# Groups:   replicate [1,000]
+   replicate Democrat Republican difference
+       &lt;int&gt;    &lt;dbl&gt;      &lt;dbl&gt;      &lt;dbl&gt;
+ 1         1     11.0      10.1       0.873
+ 2         2     10.9       9.89      0.972
+ 3         3     11.1      10.1       1.02 
+ 4         4     11.1      10.3       0.734
+ 5         5     11.2       9.83      1.41 
+ 6         6     11.3      10.3       0.999
+ 7         7     11.1      10.0       1.13 
+ 8         8     11.2      10.3       0.931
+ 9         9     11.4       9.84      1.52 
+10        10     11.0       9.89      1.13 
+# ℹ 990 more rows</code></pre>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span><span class='va'>boots_ci</span> <span class='op'>&lt;-</span> <span class='va'>boots</span> <span class='op'>|&gt;</span></span>
+<span>  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span><span class='op'>(</span><span class='va'>replicate</span>, <span class='va'>difference</span><span class='op'>)</span> <span class='op'>|&gt;</span></span>
+<span>  <span class='fu'><a href='https://infer.tidymodels.org/reference/get_confidence_interval.html'>get_ci</a></span><span class='op'>(</span>level <span class='op'>=</span> <span class='fl'>0.95</span>, type <span class='op'>=</span> <span class='st'>"percentile"</span><span class='op'>)</span></span>
+<span><span class='fu'>knitr</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/knitr/man/kable.html'>kable</a></span><span class='op'>(</span><span class='va'>boots_ci</span>, digits <span class='op'>=</span> <span class='fl'>2</span>, col.names <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"Lower CI"</span>, <span class='st'>"Upper CI"</span><span class='op'>)</span><span class='op'>)</span></span></code></pre>
+</div>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: right;">Lower CI</th>
+<th style="text-align: right;">Upper CI</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">0.48</td>
+<td style="text-align: right;">1.7</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span><span class='va'>boots_ci_plot</span> <span class='op'>&lt;-</span> <span class='va'>boots</span> <span class='op'>|&gt;</span></span>
+<span>  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></span><span class='op'>(</span>mapping <span class='op'>=</span> <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>difference</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>+</span> </span>
+<span>  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/geom_histogram.html'>geom_histogram</a></span><span class='op'>(</span>fill <span class='op'>=</span> <span class='st'>"hotpink2"</span><span class='op'>)</span> <span class='op'>+</span> </span>
+<span>  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/geom_abline.html'>geom_vline</a></span><span class='op'>(</span>xintercept <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0.55</span>, <span class='fl'>1.68</span><span class='op'>)</span>, color <span class='op'>=</span> <span class='st'>"purple"</span>, size <span class='op'>=</span> <span class='fl'>1</span><span class='op'>)</span> <span class='op'>+</span> </span>
+<span>  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/labs.html'>labs</a></span><span class='op'>(</span></span>
+<span>    x <span class='op'>=</span> <span class='st'>"Urbanization Difference (Democrat - Republican)"</span>,</span>
+<span>    y <span class='op'>=</span> <span class='st'>"Repeated Sample Count"</span></span>
+<span>  <span class='op'>)</span></span>
+<span><span class='va'>boots_ci_plot</span></span></code></pre>
+</div>
+<img src="index_files/figure-html5/Bootstrap%20Sampling%20and%20Hypothesis%20Test-1.png" width="624" />
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span><span class='va'>boots_p</span> <span class='op'>&lt;-</span> <span class='va'>boots_ci</span> <span class='op'>|&gt;</span></span>
+<span>  <span class='fu'><a href='https://infer.tidymodels.org/reference/get_p_value.html'>get_p_value</a></span><span class='op'>(</span>obs_stat <span class='op'>=</span> <span class='va'>boots</span>, direction <span class='op'>=</span> <span class='st'>"both"</span><span class='op'>)</span></span>
+<span></span>
+<span><span class='fu'>knitr</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/knitr/man/kable.html'>kable</a></span><span class='op'>(</span><span class='va'>boots_p</span>, col.names <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"P-Value"</span><span class='op'>)</span><span class='op'>)</span></span></code></pre>
+</div>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: right;">P-Value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">0</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Here, I did a bootstrap sample with 1,000 replications, so 1,000 different combinations were made from my dataset, with the first table showing the average urbanization score for the Democratic and Republican states in each sample, with the difference (Democrat - Republican) in the urbanization scores in the final column. I then calculated a 95% confidence interval for these samples, which is shown in the second table, and the graph shows the distribution of the difference in the urbanization scores for the Democratic and Republican states, with the confidence intervals shown with the vertical purple lines.
+As the graph and CI table show, the lower and upper bounds of the 95% confidence interval are greater than zero, so 95% of the time in repeated samples, the Democratic states had a higher urbanization score than the Republican states. This supports my hypothesis from the introduction because there is very little likelihood that a Republican state has a higher urbanization score than a Democratic state.
+Furthermore, my hypothesis test from my bootstrap sampling has a p-value of 0 with an alpha level of 0.05, meaning that I can reject the null hypothesis that there is no significant relationship between a state’s urbanization score and its partisan lean. This means that there is a statistically significant relationship between the urbanization score and partisan score of a state.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>Through my linear regression model, confidence interval from bootstrap tests, and p-value, I have found significant support for my hypothesis that there is a correlation between a state’s urbanization score and its partisan lean. A potential confounder to my results could be the inaccuracies in the census data and undercounting the population in some states, which would cause the urbanization score in this dataset to be lower than it actually is. Also, cities tend to be more Democratic and have much denser populations than rural areas, so many of the citizens that lean Democratic are concentrated in certain areas (as shown in one of the above tables, there are 30 Republican states and only 21 Democratic ones). Furthermore, cities tend to have higher POC populations than rural areas, and minority populations tend to vote Democratic, so just looking at population density may not provide the whole picture of factors that affect a state’s partisan lean. If I had more time or money, I would improve this analysis by adding data regarding the proportion of the population of each state that lives in a city vs. a rural area and what the racial/ethnic minority and low-income population of each state is.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
 <!--radix_placeholder_article_footer-->
 <!--/radix_placeholder_article_footer-->
 </div>
